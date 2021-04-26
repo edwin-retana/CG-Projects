@@ -3,20 +3,52 @@
 
 <body>
 
-<h2>Program 5</h2>
+<h2>Program 5 – Interactive Poseable 2D Figure</h2>
 
 </body>
 
 <div>
-  <canvas id="layer-canvas" width="512" height="512" style="border:4px solid #0d00ff;"></canvas>
+  <canvas id="layer-canvas" width="400" height="400" style="border:4px solid #0d00ff;"></canvas>
 </div>
 
 
+<div>
+  <label for="id_left_arm_angle">Left Arm Rotation</label>
+  <input id="id_left_arm_angle" type="range" min="0" max="360" value="0">
+</div>
+
+<div>
+  <label for="id_right_arm_angle">Right Arm Rotation</label>
+  <input id="id_right_arm_angle" type="range" min="0" max="360" value="0">
+</div>
+
+
+<div>
+  <label for="id_left_leg_angle">Left Leg Rotation</label>
+  <input id="id_left_leg_angle" type="range" min="0" max="360" value="0">
+</div>
+
+<div>
+  <label for="id_right_leg_angle">Right Leg Rotation</label>
+  <input id="id_right_leg_angle" type="range" min="0" max="360" value="0">
+</div>
+
+
+<div>
+  <label for="id_root_x">Root X-Value</label>
+  <input id="id_root_x" type="range" min="0" max="400" value="200">
+</div>
+
+<div>
+  <label for="id_root_y">Root Y-Value</label>
+  <input id="id_root_y" type="range" min="0" max="400" value="200">
+</div>
+
 <script>
 
-// Designate callback function that will run after page loads.
-// We must do this to be sure that we don't try using the arrays until they are ready.
-window.onload = windowInit;
+
+var canvas = document.getElementById("layer-canvas");
+var ctx = canvas.getContext("2d");
 
 var maxStage = -1;
 var minStage = -1;
@@ -24,30 +56,107 @@ var minStage = -1;
 var maxCFS = -1;
 var minCFS = -1;
 
-var canvas = document.getElementById("layer-canvas");
-var ctx = canvas.getContext("2d");
+var leftArmAngle = 0.0;
+var rightArmAngle = 0.0;
+var leftLegAngle = 0.0;
+var rightLegAngle = 0.0;
 
-function repaint() {
+var rootX = canvas.width/2;
+var rootY = canvas.height/2;
+
+
+
+document.getElementById("id_left_leg_angle").addEventListener("change", onChangeLeftLeg);
+document.getElementById("id_right_leg_angle").addEventListener("change", onChangeRightLeg);
+document.getElementById("id_left_arm_angle").addEventListener("change", onChangeLeftArm);
+document.getElementById("id_right_arm_angle").addEventListener("change", onChangeRightArm);
+
+
+document.getElementById("id_root_x").addEventListener("change", onChangeX);
+document.getElementById("id_root_y").addEventListener("change", onChangeY);
+
+
+drawFigure();
+
+function onChangeX(event) { rootX = event.target.value; }
+function onChangeY(event) { rootY = event.target.value; }
+function onChangeLeftArm(event) { leftArmAngle = event.target.value; }
+function onChangeRightArm(event) { rightArmAngle = event.target.value; }
+function onChangeLeftLeg(event) { leftLegAngle = event.target.value; }
+function onChangeRightLeg(event) { rightLegAngle = event.target.value; }
+
+
+function drawFigure() {
   ctx.clearRect(0,0, canvas.width, canvas.height);
-  window.requestAnimationFrame(repaint);
+  ctx.save();
+  ctx.translate(rootX,rootY);
+  ctx.save();
+  drawBody(); //Body
+  drawHead(); //Head
+  ctx.translate(-25,0);
+  ctx.rotate(leftArmAngle*Math.PI/180);
+  drawLimb(); //Left Arm
+  ctx.restore();
+  ctx.translate(25,0);
+  ctx.save();
+  ctx.rotate(rightArmAngle*Math.PI/180);
+  drawLimb(); //Right Arm
+  ctx.restore();
+  ctx.translate(-10,100);
+  ctx.save();
+  ctx.rotate(rightLegAngle*Math.PI/180);
+  drawLimb(); //Right Leg
+  ctx.restore();
+  ctx.translate(-30,0);
+  ctx.rotate(leftLegAngle*Math.PI/180);
+  drawLimb(); //Left Leg
+  ctx.restore();
+  window.requestAnimationFrame(drawFigure);
 }
 
 
-function windowInit() {
-  repaint();
+function drawHead() {
+  ctx.strokeStyle = "black";
+  ctx.fillStyle = "blue";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-15,0);
+  ctx.lineTo(-15,-30);
+  ctx.lineTo(15,-30);
+  ctx.lineTo(15,0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
 }
 
-function drawFigure() {}
-
-function drawHead(x,y) {}
-
-function drawBody(x,y) {
-
+function drawBody() {
+  ctx.strokeStyle = "black";
+  ctx.fillStyle = "blue";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-25,0);
+  ctx.lineTo(25,0);
+  ctx.lineTo(25,100);
+  ctx.lineTo(-25,100);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
 }
 
-function drawArm(x,y,isRight) {}
-
-function drawLeg(x,y,isRight) {}
+function drawLimb() {
+  ctx.strokeStyle = "black";
+  ctx.fillStyle = "blue";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-5,0);
+  ctx.lineTo(5,0);
+  ctx.lineTo(5,50);
+  ctx.lineTo(-5,50);
+  //ctx.lineTo(2,0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+}
 
 </script>
 
