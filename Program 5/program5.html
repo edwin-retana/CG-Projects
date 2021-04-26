@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+<h2>Program 5</h2>
+
+</body>
+
+<div>
+  <canvas id="layer-canvas" width="512" height="512" style="border:4px solid #0d00ff;"></canvas>
+</div>
+
+
+<script>
+
+// Designate callback function that will run after page loads.
+// We must do this to be sure that we don't try using the arrays until they are ready.
+window.onload = windowInit;
+
+var maxStage = -1;
+var minStage = -1;
+
+var maxCFS = -1;
+var minCFS = -1;
+
+var canvas = document.getElementById("layer-canvas");
+var ctx = canvas.getContext("2d");
+
+function repaint() {
+  ctx.clearRect(0,0, canvas.width, canvas.height);
+  window.requestAnimationFrame(repaint);
+}
+
+
+function windowInit() {
+  repaint();
+}
+
+function drawFigure() {}
+
+function drawHead(x,y) {}
+
+function drawBody(x,y) {
+
+}
+
+function drawArm(x,y,isRight) {}
+
+function drawLeg(x,y,isRight) {}
+
+</script>
+
+</html>

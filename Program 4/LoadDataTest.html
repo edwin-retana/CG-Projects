@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+<!-- The h2 tag displays formatted text in a larger heading style -->
+<h2>Mill Creek Load Data Test</h2>
+
+<h2>Open developer console to see output</h2>
+
+<h2>Each data sample spans 15-minutes of time</h2>
+
+</body>
+
+<!-- Include global array variables declared from external file -->
+<!-- Assumes file is in js subdirectory or folder. -->
+<script src="js/MillCreekData.js"></script>
+
+<script>
+
+// Designate callback function that will run after page loads.
+// We must do this to be sure that we don't try using the arrays until they are ready.
+window.onload = startDoingSomething;
+
+function startDoingSomething()
+{
+  console.log("Cubic-feet per second data");
+	
+	// Print every 10th value...
+	for(let i = 0; i < cfsData.length; i += 10)
+	  console.log(cfsData[i]);
+		
+  console.log("Creek stage in feet");
+	
+	// Print every 10th value...
+	for(let i = 0; i < stageData.length; i += 10)
+	  console.log(stageData[i]);
+}
+
+</script>
+
+</html>

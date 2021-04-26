@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Program 1: Edwin Retana</title>
+</head>
+<body>
+
+<!-- Source: https://www.w3schools.com/html/html5_canvas.asp -->
+
+<canvas id="myCanvas" width="400" height="400" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<script>
+
+drawPicture();
+
+function drawPicture() {
+  drawSky();
+
+  drawGrass();
+
+	// TO-DO
+	// Call function with appropriate arguments to draw a sun.
+  // EDIT: in context of picture, changed to a moon
+  drawToonCircle(50,50,25,"#CFCFCF");
+  //Spencer's Function, crater's for the moon
+  outsideArcs(35, 50, 7, 11, "#3D3D3D");
+  outsideArcs(60, 60, 5, 11, "#3D3D3D");
+  outsideArcs(55, 40, 8, 11, "#3D3D3D");
+	// TO-DO
+	// Call function to draw a tree standing on top of the grass.
+  let xT = 250;
+  for (i = 0; i < 8; i++) {
+    drawTree(xT,300,35,25);
+    xT += 50;
+  }
+  xT = 275;
+  for (i = 0; i < 8; i++) {
+    drawTree(xT,300,40,25);
+    xT += 50;
+  }
+  let offset = 0;
+
+  //Flora's Function
+  for (i = 0; i < 12; i++) {
+    offset = 15 + Math.random()*10;
+    drawFlower(225 + 15*i,315-offset,offset, "#CF96FA");
+  }
+
+  //Ronan's Function
+  drawTent(100, 300, 50, 50);
+
+  //Stephanie's Functions
+  drawPerson(5, 50, 275, 15, 20);
+
+  //My Function (Edwin Retana)
+  drawCampfire(150, 300, 24, 36);
+
+  let xS = 0;
+  let yS = 10;
+  let lS = 3;
+  for (i = 0; i < 21; i++) {
+    if (i%2 == 0) {
+      xS += 20;
+      yS += 5;
+      if (lS > 2)
+        lS -= 1;
+    } else if (i%3 == 0) {
+      if (Math.random() < 0.5) {
+        xS += 25;
+      } else {
+        xS += 20;
+      }
+      yS = 10;
+      if (Math.random() < 0.5) {
+        lS = 5;
+      } else {
+        lS = 2;
+      }
+    } else {
+      xS += 15;
+      yS -= 2;
+      if (lS < 7)
+        lS += 2;
+    }
+    //Tim's Function
+    drawStar(xS, yS, lS);
+  }
+}
+
+/**
+ * Draws a campfire with a log
+ * @author Edwin Retana
+ * @param {integer} baseX - where the campfire will be drawn about the x-axis
+ * @param {integer} baseY - where the campfire will be drawn about the y-axis
+ * @param {integer} fireWidth - the width of the fire
+ * @param {integer} fireHeight - the height of the fire
+ */
+function drawCampfire(baseX, baseY, fireHeight, fireWidth) {
+  let c = document.getElementById("myCanvas");
+  let ctx = c.getContext("2d");
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  let incX = fireWidth/2;
+  let incY = fireHeight/2;
+  //Draw brown log
+  ctx.fillStyle = "946C00";
+  ctx.beginPath();
+	ctx.fillRect(baseX-incX, baseY-incY/2, incX*2, incY);
+	ctx.rect(baseX-incX, baseY-incY/2, incX*2, incY);
+  ctx.closePath();
+  ctx.stroke();
+  //Draw red outer flame
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.moveTo(baseX, baseY);
+  ctx.moveTo(baseX + 0.5*incX, baseY);
+  ctx.lineTo(baseX + incX, baseY - incY);
+  ctx.lineTo(baseX, baseY - 3*incY);
+  ctx.lineTo(baseX - incX, baseY - incY);
+  ctx.lineTo(baseX - 0.5*incX, baseY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  //Draw orange inner flame
+  baseY = baseY - 0.35*incY;
+  incY = 0.6*incY;
+  incX = 0.6*incX;
+  ctx.fillStyle = "orange";
+  ctx.beginPath();
+  ctx.moveTo(baseX, baseY);
+  ctx.lineTo(baseX + 0.5*incX, baseY);
+  ctx.lineTo(baseX + incX, baseY - incY);
+  ctx.lineTo(baseX, baseY - 3*incY);
+  ctx.lineTo(baseX - incX, baseY - incY);
+  ctx.lineTo(baseX - 0.5*incX, baseY);
+  ctx.closePath();
+  ctx.fill();
+  //Draw yellow inner flame
+  baseY = baseY - 0.35*incY;
+  incY = 0.6*incY;
+  incX = 0.6*incX;
+  ctx.fillStyle = "yellow";
+  ctx.beginPath();
+  ctx.moveTo(baseX, baseY);
+  ctx.lineTo(baseX + 0.5*incX, baseY);
+  ctx.lineTo(baseX + incX, baseY - incY);
+  ctx.lineTo(baseX, baseY - 3*incY);
+  ctx.lineTo(baseX - incX, baseY - incY);
+  ctx.lineTo(baseX - 0.5*incX, baseY);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawSky()
+{
+  // Use let when declaring local function variables.
+  let c = document.getElementById("myCanvas");
+  let ctx = c.getContext("2d");
+	ctx.fillStyle = "#5DADE2";
+	ctx.fillRect(0,0, c.width,c.height);
+
+  var my_gradient = ctx.createLinearGradient(0, 0, 0, 170);
+  my_gradient.addColorStop(0, "#000000");
+  my_gradient.addColorStop(1, "#03568A");
+  ctx.fillStyle = my_gradient;
+  ctx.fillRect(0, 0, c.width, c.height);
+}
+
+function drawGrass()
+{
+  let c = document.getElementById("myCanvas");
+  let ctx = c.getContext("2d");
+	ctx.fillStyle = "green";
+	ctx.fillRect(0,300, 400,100);
+}
+
+/*
+ * drawTree
+ * Draw a tree formed by a brown rectangle and green leafy circle.
+ * Specify bottom center of trunk, height of trunk, and radius of leaf ball.
+ * @param {integer} trunkX - x-coordinate of tree trunk bottom/root.
+ * @param {integer} trunkY - y-coordinate of tree trunk bottom/root.
+ * @param {integer} trunkHeight - height of tree trunk.
+ * @param {integer} leafRadius - radius of leaf ball.
+ */
+function drawTree(trunkX,trunkY,trunkHeight,leafRadius)
+{
+  let c = document.getElementById("myCanvas");
+  let ctx = c.getContext("2d");
+
+	// Compute trunk width as a fraction of trunk height.
+	// Apply floor function to truncate fraction to an integer.
+	let trunkHalfWidth = Math.floor( trunkHeight / 6 );
+
+	// draw brown rectangle for trunk.
+	ctx.fillStyle = "brown";
+	ctx.fillRect(trunkX-trunkHalfWidth,trunkY-trunkHeight, 2*trunkHalfWidth,trunkHeight);
+
+  // call green drawToonCircle
+	drawToonCircle(trunkX,trunkY-trunkHeight-leafRadius,leafRadius,"green");
+}
+
+/**
+ * drawToonCircle
+ * Draw circle filled with given color and outlined with a thick black line.
+ * @param {integer} x - x-coordinate of center
+ * @param {integer} y - y-coordinate of center
+ * @param {integer} radius - radius of circle
+ * @param {string} fillColor - interior fill color.
+ */
+function drawToonCircle(x,y,radius,fillColor)
+{
+  let c = document.getElementById("myCanvas");
+  let ctx = c.getContext("2d");
+  ctx.strokeStyle = "black";
+	ctx.fillStyle = fillColor;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+
+  // Arguments are centerX, centerY, radius, startAngle, endAngle (in radians)
+  ctx.arc(x,y,radius,0,2*Math.PI);
+	ctx.fill();
+  ctx.stroke();
+}
+
+
+
+/** Ronan Byrne
+* drawTent - Draws a multicolored tent at specified location
+* @param {integer} tentCenterX - the X-value of the center of the tent
+* @param {integer} tentBase - the Y-value of the floor of the tent (lowest point)
+* @param {integer} tentHeight - the height of the tent
+* @param {integer} tentWidth - the total width of the base of the tent
+*/
+function drawTent(tentCenterX, tentBase, tentHeight, tentWidth)
+{
+  // Use let when declaring local function variables.
+  let c = document.getElementById("myCanvas");
+  let ctx = c.getContext("2d");
+  ctx.fillStyle = "blue";
+
+  let segementSize = tentWidth/4;
+
+  ctx.beginPath();
+  ctx.moveTo(tentCenterX, tentBase-tentHeight);
+  ctx.lineTo(tentCenterX - 2*segementSize, tentBase);
+  ctx.lineTo(tentCenterX - segementSize,tentBase);
+  ctx.fill();
+
+  ctx.fillStyle ="grey";
+  ctx.beginPath();
+  ctx.moveTo(tentCenterX, tentBase-tentHeight);
+  ctx.lineTo(tentCenterX - segementSize, tentBase);
+  ctx.lineTo(tentCenterX,tentBase);
+  ctx.fill();
+
+  ctx.fillStyle ="blue";
+  ctx.beginPath();
+  ctx.moveTo(tentCenterX, tentBase-tentHeight);
+  ctx.lineTo(tentCenterX, tentBase);
+  ctx.lineTo(tentCenterX + segementSize,tentBase);
+  ctx.fill();
+
+  ctx.fillStyle ="grey";
+  ctx.beginPath();
+  ctx.moveTo(tentCenterX, tentBase-tentHeight);
+  ctx.lineTo(tentCenterX + segementSize, tentBase);
+  ctx.lineTo(tentCenterX + 2*segementSize,tentBase);
+  ctx.fill();
+}
+
+/**
+    * drawPerson
+    * @author Stephanie Fulton
+    * @param {integer} headR - radius of head
+    * @param {integer} torsoX - x-coordinate of top left corner of torso
+    * @param {integer} torsoY - y-coordinate of top left corner of torso
+    * @param {integer} torsoWidth - width of the torso
+    * @param {integer} torsoHeight - height of the torso
+    */
+function drawPerson(headR, torsoX, torsoY, torsoWidth, torsoHeight)
+{
+    let c = document.getElementById("myCanvas");
+    let ctx = c.getContext("2d");
+
+    //draw torso
+    ctx.strokeStyle = "black";
+    ctx.fillStyle = "#C68642";
+    ctx.beginPath();
+    ctx.rect(torsoX, torsoY, torsoWidth, torsoHeight);
+    ctx.fill();
+    ctx.stroke();
+
+    //draw left arm
+    let armWidth = torsoWidth/3;
+    ctx.strokeStyle = "black";
+    ctx.fillStyle = "#C68642";
+    ctx.beginPath();
+    ctx.rect(torsoX - armWidth, torsoY, armWidth, torsoHeight);
+    ctx.stroke();
+    ctx.fill();
+
+    //draw right arm
+    ctx.strokeStyle = "black";
+    ctx.fillStyle = "#C68642";
+    ctx.beginPath();
+    ctx.rect(torsoX + torsoWidth, torsoY, armWidth, torsoHeight);
+    ctx.stroke();
+    ctx.fill();
+
+    //draw left leg
+    let legY = torsoY + torsoHeight;
+    let legLen = torsoHeight*1.2;
+    let legWidth = armWidth*1.3;
+    ctx.strokeStyle = "black";
+    ctx.fillStyle = "#C68642";
+    ctx.beginPath();
+    ctx.rect(torsoX, legY, legWidth, legLen);
+    ctx.stroke();
+    ctx.fill();
+
+    //draw right leg
+    ctx.strokeStyle = "black";
+    ctx.fillStyle = "#C68642";
+    ctx.beginPath();
+    ctx.rect(torsoX + torsoWidth - legWidth, legY, legWidth, legLen);
+    ctx.stroke();
+    ctx.fill();
+
+    //draw head
+    let headX = torsoX + torsoWidth/2;
+    let headY = torsoY - headR;
+    ctx.fillStyle = "#C68642";
+    ctx.strokeStyle = "black";
+    ctx.beginPath();
+    ctx.arc(headX, headY, headR, 0, 2*Math.PI);
+    ctx.fill();
+    ctx.stroke();
+}
+/** @name outsideArcs
+* Draws a the arcs of a circle that circumscribe an n-gon
+* @author Spencer Van Koevering
+* @param {integer} x - x-coordinate of the middle of the circle.
+* @param {integer} y - y-coordinate of the middle of a circle.
+* @param {integer} radius - radius-coordinate of the middle of a circle.
+* @param {integer} arcs - the number of arcs (the number of sides of the circumscribed polygon). Must be greater than 2.
+* @param {string} color - The color of the filled arcs
+*/
+function outsideArcs(x, y, radius, arcs, color) {
+    let c = document.getElementById("myCanvas");
+    let ctx = c.getContext("2d");
+    let currentAngle = 0; //we are going to walk around the circle and make arcs number of arcs. Start at 0
+    ctx.lineWidth = 10;
+    ctx.fillStyle = color;
+    let stepAngle = (2/arcs)*(Math.PI); //this is the length of each arc in radians
+    while(currentAngle <= (2*Math.PI - stepAngle)){
+        ctx.beginPath();
+        ctx.arc(x, y, radius, currentAngle, (currentAngle+stepAngle)); //draw the current arc
+        ctx.fill();
+        currentAngle+= stepAngle; //step the the beginning of the next arc
+    }
+    ctx.closePath();
+}
+
+/*
+* drawStar,
+* Draw a 4-pronged star
+* @author Tim McKenna
+* @param {integer} x - x-coordinate of center of star
+* @param {integer} y - y-coordinate of center of star
+* @param {integer} len - distance vertically and horizontally that the star extends from the center
+*/
+function drawStar(x,y,len)
+{
+  let c = document.getElementById("myCanvas");
+  let ctx = c.getContext("2d");
+  ctx.strokeStyle = "yellow";
+  ctx.fillStyle = "yellow";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.arc(x+len,y+len,len,Math.PI,1.5*Math.PI);
+  ctx.fill();
+  ctx.moveTo(x,y);
+  ctx.arc(x-len,y-len,len,0,0.5*Math.PI);
+  ctx.fill();
+  ctx.moveTo(x,y);
+  ctx.arc(x-len,y+len,len,1.5*Math.PI,0);
+  ctx.fill();
+  ctx.moveTo(x,y);
+  ctx.arc(x+len,y-len,len,Math.PI,0.5*Math.PI,true);
+  ctx.fill();
+  ctx.closePath();
+}
+
+/*
+ * drawFlower
+ * @author Flora Taagen
+ * Draw a flower formed by a green rectangle and two colored triangle petals
+ * Specify top left x and y coordinates of stem, stem height, and petal color
+ * @param {integer} stemX - x-coordinate of stem (top-left)
+ * @param {integer} stemY - y-coordinate of stem (top-left)
+ * @param {integer} stemHeight - height of stem
+ * @param {string} petalColor - color of petal
+ */
+function drawFlower(stemX,stemY,stemHeight, petalColor) {
+  let c = document.getElementById("myCanvas");
+  let ctx = c.getContext("2d");
+
+  // draw green rectangle for flower stem
+  ctx.fillStyle = "green";
+  ctx.fillRect(stemX, stemY-2, 4, stemHeight+2);
+
+  //draw petals
+  ctx.fillStyle = petalColor;
+  ctx.beginPath();
+  ctx.moveTo(stemX + 2,stemY);
+  ctx.lineTo(stemX + 2 + stemHeight/4, stemY - stemHeight/2);
+  ctx.lineTo(stemX - stemHeight/4, stemY - stemHeight/2);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = petalColor;
+  ctx.beginPath();
+  ctx.moveTo(stemX + 2,stemY - stemHeight/1.5);
+  ctx.lineTo(stemX + 2 + stemHeight/4, stemY - stemHeight/5);
+  ctx.lineTo(stemX - stemHeight/4, stemY - stemHeight/5);
+  ctx.closePath();
+  ctx.fill();
+}
+
+
+
+</script>
+
+</body>
+</html>

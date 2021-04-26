@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+<!-- The h2 tag displays formatted text in a larger heading style -->
+<h2>Mill Creek Data</h2>
+
+
+</body>
+
+<!-- Include global array variables declared from external file -->
+<!-- Assumes file is in js subdirectory or folder. -->
+<script src="js/MillCreekData.js"></script>
+
+<div>
+  <canvas id="layer-first" width="512" height="256" style="border:4px solid #0d00ff;"></canvas>
+</div>
+
+<div>
+  <canvas id="layer-second" width="512" height="256" style="border:4px solid #0d00ff;"></canvas>
+</div>
+
+<script>
+
+// Designate callback function that will run after page loads.
+// We must do this to be sure that we don't try using the arrays until they are ready.
+window.onload = windowInit;
+
+var maxStage = -1;
+var minStage = -1;
+
+var maxCFS = -1;
+var minCFS = -1;
+
+
+function repaint() {
+  let canvasStage = document.getElementById("layer-first");
+  let canvasCFS = document.getElementById("layer-second");
+  plotData(canvasStage, minStage, maxStage, stageData);
+  plotData(canvasCFS, minCFS, maxCFS, cfsData);
+}
+
+/**
+ * plotData
+ * Slightly different from specs, but this allows us, if we want to, to change
+ * the size of the canvas in the code, and would still plot the data out correctly.
+ * @author Edwin Retana
+ * @param {Canvas element} canvas – the canvas being painted to
+ * @param {integer or float} min – the minimum value of data, for the y-axis
+ * @param {integer or float} max – the maximum value of data, for the y-axis
+ * @param {array} data – array of data to be plotted, specifically the y-values
+ */
+function plotData(canvas, min, max, data) {
+  let ctx = canvas.getContext("2d");
+  let hasPrintedMax = false;
+  let hasPrintedMin = false;
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  ctx.clearRect(0,0, canvas.width,canvas.height);
+  ctx.beginPath();
+  ctx.moveTo(0,canvas.height*(data[0]/(min+max)));
+
+  let xMax = 0;
+  let xMin = 0;
+
+  for (i = 1; i < data.length; i++) {
+    ctx.lineTo(canvas.width*(i/canvas.width), canvas.height*(1 - ((data[i]-min)/(max-min))) );
+
+    if (data[i] == max && !hasPrintedMax) {
+      if (i >= data.length*0.85) {
+        xMax = canvas.width*0.85;
+      } else {
+        xMax = canvas.width*(i/canvas.width);
+      }
+      hasPrintedMax = true;
+    }
+
+    if (data[i] == min && !hasPrintedMin) {
+      if (i >= data.length*0.85) {
+        xMin = canvas.width*0.85;
+      } else {
+        xMin = canvas.width*(i/canvas.width);
+      }
+      hasPrintedMin = true;
+    }
+  }
+
+  //Small bonus feature that prints the values of the min and max of each plot
+  //near the point, but enough so that it is visible (since if it prints at
+  //the coords, the text is outside the canvas for the max).
+  ctx.stroke();
+  ctx.closePath();
+  ctx.strokeStyle = "#de0007";
+  ctx.lineWidth = 1;
+  ctx.font = "12px Arial";
+  ctx.strokeText("Min: " + String(min), xMin, canvas.height-10);
+  ctx.strokeText("Max: " + String(max), xMax, 10);
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+}
+
+function windowInit() {
+  //Initializing data
+  maxStage = Math.max(...stageData);
+  minStage = Math.min(...stageData);
+  maxCFS = Math.max(...cfsData);
+  minCFS = Math.min(...cfsData);
+  repaint();
+}
+
+</script>
+
+</html>

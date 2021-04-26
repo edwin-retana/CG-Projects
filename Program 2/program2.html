@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="css/P2Style.css">
+  <title>Program 2 – Edwin Retana</title>
+</head>
+<body>
+
+<div>
+  <button id="button-clear" type="button">Clear</button>
+  <button id="button-toggle" type="button">Drawing Layer: Foreground</button>
+</div>
+
+<div>
+    <input type="color" id="color-picker" name="color picker" value="#e66465">
+    <label for="color-picker">Fill Color</label>
+</div>
+
+<div>
+  <shape-button id="button-rect" type="shape-button">Rectangle</shape-button>
+  <shape-button id="button-circle" type="shape-button">Circle</shape-button>
+  <shape-button id="button-star" type="shape-button">Star</shape-button>
+  <shape-button id="button-house" type="shape-button">House</shape-button>
+</div>
+
+<div id="canvas-layers">
+  <canvas id="layer-background" width="256" height="256" style="border:2px solid #000000;"></canvas>
+  <canvas id="layer-foreground" width="256" height="256" style="border:2px solid #000000;"></canvas>
+  <canvas id="layer-feedback" width="256" height="256" style="border:2px solid #000000;"></canvas>
+</div>
+
+
+<script>
+
+var rectMode = true;
+var circleMode = false;
+var starMode = false;
+var houseMode = false;
+var currentLayer = "layer-foreground";
+var fillColor = "blue";
+var x1 = 0;
+var y1 = 0;
+var x2 = 0;
+var y2 = 0;
+var dragStarted = false;
+
+onSelectColor();
+main();
+
+function main() {
+  //Neither of these will need event listeners
+  let canvasForeground = document.getElementById("layer-foreground");
+  let canvasBackground = document.getElementById("layer-background");
+
+  //This is where all the event listeners go
+  let canvasFeedback = document.getElementById("layer-feedback");
+  canvasFeedback.addEventListener("mousedown", onMouseDown);
+  canvasFeedback.addEventListener("mousemove", onMouseMove);
+  canvasFeedback.addEventListener("mouseup", onMouseUp);
+
+  //Clear button
+  let buttonClear = document.getElementById("button-clear");
+  buttonClear.addEventListener("click", onClearLayer);
+
+  //Change to Rectangle
+	let buttonRect = document.getElementById("button-rect");
+	buttonRect.addEventListener("click", onRect);
+  document.getElementById("button-rect").style.background = "#4cf5a3";
+
+  //Change to Circle
+	let buttonCircle = document.getElementById("button-circle");
+	buttonCircle.addEventListener("click", onCircle);
+
+  //Change to Star
+	let buttonStar = document.getElementById("button-star");
+	buttonStar.addEventListener("click", onStar);
+
+  //Change to Circle
+	let buttonHouse = document.getElementById("button-house");
+	buttonHouse.addEventListener("click", onHouse);
+
+  //Toggle layers
+	let buttonToggle = document.getElementById("button-toggle");
+	buttonToggle.addEventListener("click", onToggle);
+
+  //Select the fill color
+  let selectColor = document.getElementById("color-picker");
+  selectColor.addEventListener("change", onSelectColor);
+
+  onClearDrawing();
+}
+
+/* onSelectColor
+ * Prompts user to select from a color wheel, this is assigned to fillColor
+ */
+function onSelectColor() {
+  let picker = document.getElementById("color-picker");
+	fillColor = picker.value;
+}
+
+/* onMouseDown
+ * The beginning of the drawing process, sets a boolean so we know not to draw
+ * when the mouse moves UNLESS a mouse click down has started.
+ */
+function onMouseDown(event) {
+	let canvas = document.getElementById("layer-feedback");
+	let rect = canvas.getBoundingClientRect();
+	x1 = event.clientX - rect.left;
+  y1 = event.clientY - rect.top;
+	dragStarted = true;
+}
+
+
+/* onMouseMove
+ * If we are dragging, draws shape using current positions
+ */
+function onMouseMove(event) {
+  if(dragStarted) {
+	  let canvas = document.getElementById("layer-feedback");
+    let ctx = canvas.getContext("2d");
+	  ctx.fillStyle = fillColor;
+	  ctx.clearRect(0,0, canvas.width,canvas.height);
+	  let rect = canvas.getBoundingClientRect();
+	  x2 = event.clientX - rect.left;
+    y2 = event.clientY - rect.top;
+    //THE ORDER IS VITAL
+    //Put feedback layer to completely blank
+    clearFeedback();
+    //Put in the keyed foreground & background
+    repaint();
+    //LASTLY add in the CURRENT (not final) shape given the current
+    //values of (x1,y1) and (x2,y2)
+    if (rectMode) {
+    	drawRectangle();
+    } else if (circleMode) {
+      drawCircle();
+    } else if (starMode) {
+      drawStar();
+    } else if (houseMode) {
+      drawHouse();
+    }
+  }
+}
+
+
+/* onMouseUp
+ * End of a drag, clears the feedback layer, paints the newly-placed shape
+ * onto the current drawing layer, then repaints the feedback layer with
+ * the new foregroud and background.
+ */
+function onMouseUp(event) {
+  dragStarted = false;
+  clearFeedback();
+	let canvas = document.getElementById(currentLayer);
+	let rect = canvas.getBoundingClientRect();
+  x2 = event.clientX - rect.left;
+  y2 = event.clientY - rect.top;
+  if (rectMode) {
+  	drawRectangle();
+  } else if (circleMode) {
+    drawCircle();
+  } else if (starMode) {
+    drawStar();
+  } else if (houseMode) {
+    drawHouse();
+  }
+  repaint();
+}
+
+/* drawCircle()
+ * Draws a circle using global variables.
+ */
+function drawCircle() {
+  let layerToPaint = currentLayer;
+  if (dragStarted) {
+    layerToPaint = "layer-feedback";
+  }
+  let canvas = document.getElementById(layerToPaint);
+  let ctx = canvas.getContext("2d");
+  let radius = Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
+  ctx.fillStyle = fillColor;
+  ctx.strokeStyle = "black";
+  //lineWidth appears smaller in arc, so it is bigger than the others here
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.arc(x1, y1, radius, 0, 2*Math.PI);
+  ctx.stroke();
+  ctx.fill();
+}
+
+ /* drawRectangle()
+  * Draws a rectangle using global variables.
+  */
+function drawRectangle() {
+  let layerToPaint = currentLayer;
+  if (dragStarted) {
+    layerToPaint = "layer-feedback";
+  }
+  let canvas = document.getElementById(layerToPaint);
+  let ctx = canvas.getContext("2d");
+  ctx.fillStyle = fillColor;
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 3;
+  let x = Math.min(x1,x2);
+  let y = Math.min(y1,y2);
+  let w = Math.abs(x2-x1);
+  let h = Math.abs(y2-y1);
+  ctx.fillRect(x,y, w,h);
+	ctx.strokeRect(x,y, w,h);
+}
+
+
+/* drawStar()
+ * Draws a star using global variables.
+ */
+function drawStar() {
+  let layerToPaint = currentLayer;
+  if (dragStarted) {
+    layerToPaint = "layer-feedback";
+  }
+  let canvas = document.getElementById(layerToPaint);
+  let ctx = canvas.getContext("2d");
+  let len = Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
+  ctx.strokeStyle = "black";
+  ctx.fillStyle = fillColor;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x1,y1-len);
+  ctx.lineTo(x1+len/3,y1-len/3);
+  ctx.lineTo(x1+len,y1-len/3);
+  ctx.lineTo(x1+len/2.5,y1+len/6);
+  ctx.lineTo(x1+len*2/3,y1+len);
+  ctx.lineTo(x1,y1+len/2);
+  ctx.lineTo(x1-len*2/3,y1+len);
+  ctx.lineTo(x1-len/2.5,y1+len/6);
+  ctx.lineTo(x1-len,y1-len/3);
+  ctx.lineTo(x1-len/3,y1-len/3);
+  ctx.lineTo(x1,y1-len);
+  ctx.fill();
+  ctx.stroke();
+  ctx.closePath();
+
+}
+
+
+/* drawHouse()
+ * Draws a house using global variables.
+ */
+function drawHouse(){
+  let layerToPaint = currentLayer;
+  if (dragStarted) {
+    layerToPaint = "layer-feedback";
+  }
+  let canvas = document.getElementById(layerToPaint);
+  let ctx = canvas.getContext("2d");
+  let size = Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
+  ctx.fillStyle = fillColor;
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 3;
+  ctx.fillRect(x1-size/2, y1-size/2, size, size);
+  ctx.strokeRect(x1-size/2, y1-size/2, size, size);
+  ctx.beginPath();
+  ctx.moveTo(x1-size*2/3, y1-size/2);
+  ctx.lineTo(x1, y1-size*5/4);
+  ctx.lineTo(x1+size*2/3, y1-size/2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+}
+
+
+/* onClearDrawing
+ * Clear current drawing layer
+ */
+function onClearDrawing() {
+  let canvas = document.getElementById("layer-foreground");
+  let ctx = canvas.getContext("2d");
+	ctx.fillStyle = "#00FF00";
+	ctx.fillRect(0,0, canvas.width,canvas.height);
+  let canvasBackground = document.getElementById("layer-background");
+  let ctx2 = canvasBackground.getContext("2d");
+	ctx2.fillStyle = "#FFFFFF";
+	ctx2.fillRect(0,0, canvasBackground.width,canvasBackground.height);
+  clearFeedback();
+}
+
+/* onClearLayer
+ * Clear current drawing layer
+ */
+function onClearLayer() {
+  let canvas = document.getElementById(currentLayer);
+  let ctx = canvas.getContext("2d");
+	// Fill drawing canvas with solid green.
+	// This simulates an image photographed against a perfect chromakey screen.
+  if (currentLayer == "layer-foreground") {
+  	ctx.fillStyle = "#00FF00";
+  } else if (currentLayer == "layer-background") {
+  	ctx.fillStyle = "#FFFFFF";
+  }
+	ctx.fillRect(0,0, canvas.width,canvas.height);
+  repaint();
+}
+
+
+/* clearFeedback
+ * Clear the feedback layer
+ */
+function clearFeedback() {
+  let canvasOutput = document.getElementById("layer-feedback");
+  let ctx = canvasOutput.getContext("2d");
+  ctx.fillStyle = "white";
+  ctx.fillRect(0,0, canvasOutput.width,canvasOutput.height);
+}
+
+/* onRect
+ * Setting vars such that we are currently painting Rectangles
+ */
+function onRect() {
+  rectMode = true;
+  Mode = false;
+  starMode = false;
+  houseMode = false;
+  document.getElementById("button-rect").style.background = "#4cf5a3";
+  document.getElementById("button-circle").style.background = "#ffecb8";
+  document.getElementById("button-star").style.background = "#ffecb8";
+  document.getElementById("button-house").style.background = "#ffecb8";
+}
+
+/* onCircle
+ * Setting vars such that we are currently painting Circles
+ */
+function onCircle() {
+  rectMode = false;
+  circleMode = true;
+  starMode = false;
+  houseMode = false;
+  document.getElementById("button-rect").style.background = "#ffecb8";
+  document.getElementById("button-circle").style.background = "#4cf5a3";
+  document.getElementById("button-star").style.background = "#ffecb8";
+  document.getElementById("button-house").style.background = "#ffecb8";
+}
+
+/* onStar
+ * Setting vars such that we are currently painting Stars
+ */
+function onStar() {
+  rectMode = false;
+  circleMode = false;
+  starMode = true;
+  houseMode = false;
+  document.getElementById("button-rect").style.background = "#ffecb8";
+  document.getElementById("button-circle").style.background = "#ffecb8";
+  document.getElementById("button-star").style.background = "#4cf5a3";
+  document.getElementById("button-house").style.background = "#ffecb8";
+}
+
+
+/* onHouse
+ * Setting vars such that we are currently painting Houses
+ */
+function onHouse() {
+  rectMode = false;
+  circleMode = false;
+  starMode = false;
+  houseMode = true;
+  document.getElementById("button-rect").style.background = "#ffecb8";
+  document.getElementById("button-circle").style.background = "#ffecb8";
+  document.getElementById("button-star").style.background = "#ffecb8";
+  document.getElementById("button-house").style.background = "#4cf5a3";
+}
+
+/* onToggle
+ * Toggle between current drawing layer and set vars accordingly
+ */
+function onToggle() {
+  let toggleButton = document.getElementById("button-toggle");
+  if (toggleButton.innerHTML == "Drawing Layer: Foreground") {
+    toggleButton.innerHTML = "Drawing Layer: Background";
+    currentLayer = "layer-background";
+  } else if (toggleButton.innerHTML == "Drawing Layer: Background") {
+    toggleButton.innerHTML = "Drawing Layer: Foreground";
+    currentLayer = "layer-foreground";
+  } else { /* This should not occur */ }
+}
+
+
+/* repaint
+ * Gets pixel data for foreground and background, applies the chromakey
+ * onto the feedback layer.
+ */
+function repaint() {
+  let canvasDrawing = document.getElementById("layer-foreground");
+  let ctxDrawing = canvasDrawing.getContext("2d");
+	let pixelsDrawing = ctxDrawing.getImageData(0, 0, canvasDrawing.width, canvasDrawing.height);
+
+  let canvasBackground = document.getElementById("layer-background");
+  let ctxBackground = canvasBackground.getContext("2d");
+	let pixelsBackground = ctxBackground.getImageData(0, 0, canvasBackground.width, canvasBackground.height);
+
+  let canvasOutput = document.getElementById("layer-feedback");
+  let ctxOutput = canvasOutput.getContext("2d");
+	let pixelsOutput = ctxOutput.getImageData(0, 0, canvasOutput.width, canvasOutput.height);
+
+  for (i = 0; i < pixelsOutput.data.length; i += 4) {
+    if (pixelsDrawing.data[i] == 0 && pixelsDrawing.data[i+1] == 255 && pixelsDrawing.data[i+2] == 0) {
+      pixelsOutput.data[i] = pixelsBackground.data[i];
+      pixelsOutput.data[i + 1] = pixelsBackground.data[i + 1];
+      pixelsOutput.data[i + 2] = pixelsBackground.data[i + 2];
+      pixelsOutput.data[i + 3] = 255;
+    } else {
+      pixelsOutput.data[i] = pixelsDrawing.data[i];
+      pixelsOutput.data[i + 1] = pixelsDrawing.data[i + 1];
+      pixelsOutput.data[i + 2] = pixelsDrawing.data[i + 2];
+      pixelsOutput.data[i + 3] = 255;
+    }
+  }
+	// Write modified data back to canvas.
+	ctxOutput.putImageData(pixelsOutput, 0, 0);
+}
+
+</script>
+
+</body>
+</html>
