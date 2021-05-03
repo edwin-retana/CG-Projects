@@ -13,3 +13,5 @@ Program 3 – A very simple kernel filter application.
 Program 4 – Simple data plotting using the lineTo() function, an introduction to data import in Javascript.
 
 Program 5 – A simple interactive poseable 2D figure.
+
+Program 6 – A script that takes in an image input and generates a 3D terrain map of it with two viewports (one rotating 360degrees around the map, the other a static top-down perspective).
